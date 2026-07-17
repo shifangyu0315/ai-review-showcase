@@ -1307,6 +1307,10 @@
     gap: 24px;
   }
 
+  .judgment-grid.grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
   .judgment-card {
     background: var(--bg-surface);
     backdrop-filter: blur(24px);
@@ -1417,6 +1421,27 @@
     font-size: 12px;
     font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
     color: var(--gold);
+  }
+
+  .judgment-image {
+    display: block;
+    margin: 18px 0 6px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-subtle);
+    cursor: zoom-in;
+    transition: all 0.3s var(--ease-out);
+  }
+
+  .judgment-image:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .judgment-image img {
+    width: 100%;
+    display: block;
   }
 
   /* 提效数据 */
@@ -1755,6 +1780,72 @@
   .reveal-delay-3 { transition-delay: 0.3s; }
   .reveal-delay-4 { transition-delay: 0.4s; }
 
+  /* ==================== Lightbox 图片弹层 ==================== */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(6, 4, 14, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s var(--ease-out),
+                visibility 0.35s;
+    cursor: zoom-out;
+  }
+
+  .lightbox.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lightbox-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 14px;
+    box-shadow: 0 40px 120px -30px rgba(168, 85, 247, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.06);
+    transform: scale(0.96);
+    transition: transform 0.4s var(--ease-out);
+    pointer-events: none;
+  }
+
+  .lightbox.active .lightbox-img {
+    transform: scale(1);
+  }
+
+  .lightbox-close {
+    position: fixed;
+    top: 28px;
+    right: 28px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: var(--text-primary);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s var(--ease-out);
+  }
+
+  .lightbox-close:hover {
+    background: rgba(236, 72, 153, 0.2);
+    border-color: var(--border-strong);
+    transform: rotate(90deg);
+  }
+
   /* ==================== 响应式 ==================== */
   @media (max-width: 900px) {
     .container { padding: 0 24px; }
@@ -1905,15 +1996,18 @@
         <div class="media-card-label">1.1 · Video Demo</div>
         <div class="media-card-title">最终版效果录屏（10s）</div>
         <div class="media-card-desc">
-          三项权益自动轮播 → 手动切换主卡 → 点击「一键解锁三项权益」→「正在解锁…」加载态 →「前往播放页体验」成功态 → 关闭浮层回到已解锁的播放页。完整闭环，全部交互均可用。
+          权益卡自动轮播 → 手动切换主卡 → 点击「一键使用全部权益」→「正在解锁…」加载态 →「前往播放页体验」成功态 → 关闭浮层回到已解锁的播放页。完整闭环，全部交互均可用。
+        </div>
+        <div style="margin-top: 12px; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+          ※ 本录屏以 <b style="color:var(--text-secondary);font-weight:500;">3 项权益</b>组合为演示，浮层实际支持 <b style="color:var(--text-secondary);font-weight:500;">2–4 项</b>动态适配（详见 2.3 · 后续能力沉淀）。
         </div>
         <div class="demo-features">
           <div class="demo-features-label">Design Highlights · 设计特色</div>
           <ul class="demo-features-list">
-            <li><b>一键 × 按需并存</b> · 默认三项全选一键解锁，权益卡右上角可逐项取消，按钮文案随选择数量<b>动态调整</b></li>
-            <li><b>权益内容即主视觉</b> · 三张权益卡（AI 情绪调音师 / 情绪模式 / 超清母带）本身承担主视觉，中央主卡抬高、两侧近乎平行退后</li>
-            <li><b>760ms 电影感入场</b> · 三张卡先聚合再展开，<code>无放大 · 无越位回落 · 无末段停顿</code>，末段自然减速</li>
-            <li><b>环境色随主卡联动</b> · 紫红 / 玫红 / 黑金三色随主卡切换，<code>700–800ms</code> 同步过渡</li>
+            <li><b>一键 × 按需并存</b> · 默认<b>全部选中</b>一键解锁，权益卡右上角可逐项取消，按钮文案随选择数量<b>动态调整</b></li>
+            <li><b>权益内容即主视觉</b> · 权益卡本身承担主视觉，主卡居中抬高、其余按数量层叠退后（本 demo 示例：AI 情绪调音师 / 情绪模式 / 超清母带）</li>
+            <li><b>760ms 电影感入场</b> · 权益卡先聚合再展开，<code>无放大 · 无越位回落 · 无末段停顿</code>，末段自然减速</li>
+            <li><b>环境色随主卡联动</b> · 环境色随主卡切换，<code>700–800ms</code> 同步过渡（本 demo 示例：紫红 / 玫红 / 黑金）</li>
             <li><b>按钮三态纯文案</b> · 一键解锁 → 正在解锁 → 前往体验，居中干净，无箭头 / 无加载点</li>
           </ul>
         </div>
@@ -1941,10 +2035,10 @@
             <div class="plan-card-title">方案 1 · 全新套装组合</div>
           </div>
           <div class="plan-card-image">
-            <img src="./plan-1-final.png" alt="方案 1 全新套装组合" />
+            <img src="./variants.png" alt="方案 1 · 支持 2 / 3 / 4 权益组合的全新套装视觉" />
           </div>
           <div class="plan-card-desc">
-            <b style="color:var(--text-primary);">跳出线上装扮套装规范</b>，为「一键权益使用」浮层<b style="color:var(--text-primary);">全新设计视觉</b>：深色玻璃 + 紫红氛围 + 三张独立权益卡叠卡轮播。中央主卡明显抬高、两侧近乎平行退后，一次性传达「三个独立权益 + 一个整体套装」两层信息。
+            <b style="color:var(--text-primary);">跳出线上装扮套装规范</b>，为「一键权益使用」浮层<b style="color:var(--text-primary);">全新设计视觉</b>：深色玻璃 + 紫红氛围 + 权益卡叠卡轮播（<b style="color:var(--text-primary);">支持 2 / 3 / 4 项自适应</b>）。主卡明显抬高、其余按数量层叠退后，一次性传达「独立权益 + 整体套装」两层信息。
           </div>
         </div>
 
@@ -1953,7 +2047,7 @@
             <div class="plan-card-title">方案 2 · 套用线上装扮套装规范</div>
           </div>
           <div class="plan-card-image">
-            <img src="./plan-2-final.jpg" alt="方案 2 套用线上装扮套装规范" />
+            <img src="https://office.netease.com/api/admin/file/download?path=popo/2026/07/15/41bc9565b37c4ee6801c2fe46c344fa3.png" alt="方案 2 套用线上装扮套装规范" />
           </div>
           <div class="plan-card-desc">
             <b style="color:var(--text-primary);">直接复用线上装扮套装 SKU</b> 的横向卡片规范和交互，浮层适配。开发成本最低、心智延续，但视觉与售卖入口高度相似，缺少心智区隔和视觉冲击力。
@@ -2219,9 +2313,9 @@
         <span class="subsection-num">2.3</span>
         后续能力沉淀
       </div>
-      <div class="subsection-desc reveal">评审版交付后，产品 × AI 又协作打磨的两项能力优化 —— 让「一键」心智更完整</div>
+      <div class="subsection-desc reveal">评审版交付后，产品 × AI 又协作打磨的三项能力优化 —— 让「一键」心智更完整</div>
 
-      <div class="judgment-grid">
+      <div class="judgment-grid grid-3">
 
         <div class="judgment-card reveal">
           <div class="judgment-num">01</div>
@@ -2254,6 +2348,23 @@
             <li>动画期间暂时<b>锁定滑动与勾选</b>，结束后恢复交互并启动自动轮播</li>
             <li>最终优化为 <code>760ms</code> 连续展开：<b>无放大 · 无越位回落 · 无末段停顿</b></li>
             <li><b>无旋转、无素材变形</b>，三张卡片一次到位、末段自然减速</li>
+          </ul>
+        </div>
+
+        <div class="judgment-card reveal reveal-delay-2">
+          <div class="judgment-num">03</div>
+          <div class="judgment-title">
+            支持 2–4 类权益卡自适应 —— <span class="highlight">配几项展几张</span>
+          </div>
+          <div class="judgment-text">
+            运营在播放页策略里组合权益（音效 / 播放器样式 / 音质 / 红心动效），浮层根据数量自动切换布局。
+          </div>
+          <ul class="judgment-points">
+            <li><b>2 张</b> · 主卡居中 + 右侧预览卡，<code>2 个分页点</code>；每 <code>2s</code> 自动互换，手动操作后<b>暂停 4s</b> 再恢复</li>
+            <li><b>3 张</b> · 保持默认叠卡（中央主卡 + 两侧对称露出），交互延续现有版本</li>
+            <li><b>4 张</b> · 主卡 + 左右侧卡 + 右后方外层卡（露出 <code>20–30px</code>），外层卡亮度 / 透明度最低，<b>不抢主卡</b></li>
+            <li><b>入场动画</b> · <code>760ms</code> 保持一致：双卡由聚合展开成「主 + 侧」，四卡展开成「四层套装」</li>
+            <li><b>勾选逻辑</b> · 4 张卡在轮播到主卡或露出状态时都可勾选，「至少保留一项」规则不变</li>
           </ul>
         </div>
 
@@ -2439,8 +2550,8 @@
           <ul>
             <li>默认顺序：情绪模式 · <b>AI 情绪调音师（中央）</b> · 超清母带</li>
             <li>中央主卡 <code>174×224px</code>，侧卡 <code>156×202px</code>，各露出 38–40%，抬高 14px</li>
-            <li>自动轮播 <b>2 秒</b>切换，手动操作后重新计时；浮层关闭 / 页面隐藏 / <code>reduce-motion</code> 时停止</li>
-            <li>兼容 <b>2–4 项</b>权益：配置几项展示几张卡</li>
+            <li>自动轮播 <b>2 秒</b>切换，手动操作后<b>暂停 4 秒</b>再恢复；浮层关闭 / 页面隐藏 / <code>reduce-motion</code> 时停止</li>
+            <li>数量自适应布局：<b>2 张</b> 主 + 右侧预览卡（<code>2 个指示点</code>）· <b>3 张</b> 默认叠卡（现版本）· <b>4 张</b> 主 + 左右侧卡 + 右后方外层卡（露出 <code>20–30px</code>）</li>
           </ul>
         </div>
       </div>
@@ -2498,6 +2609,12 @@
   </div>
 </footer>
 
+<!-- Lightbox 图片弹层 -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox-close" type="button" aria-label="关闭">×</button>
+  <img class="lightbox-img" src="" alt="" />
+</div>
+
 <script>
   // 滚动触发动画
   const revealElements = document.querySelectorAll('.reveal');
@@ -2542,6 +2659,44 @@
       });
     }, { threshold: 0.3 });
     videoObserver.observe(video);
+  }
+
+  // Lightbox 图片弹层
+  const lightbox = document.getElementById('lightbox');
+  if (lightbox) {
+    const lightboxImg = lightbox.querySelector('.lightbox-img');
+
+    function openLightbox(src, alt) {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || '';
+      lightbox.classList.add('active');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('active');
+      lightbox.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.judgment-image').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const img = el.querySelector('img');
+        if (img) openLightbox(img.src, img.alt);
+      });
+    });
+
+    // 点遮罩任意位置或关闭按钮都关闭
+    lightbox.addEventListener('click', closeLightbox);
+
+    // ESC 关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+        closeLightbox();
+      }
+    });
   }
 </script>
 
